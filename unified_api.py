@@ -73,7 +73,44 @@ async def extract_text(request: ImageURLRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# Define a single request model for /generate-content
+class GenerateContentRequest(BaseModel):
+    query: str
+    image_url: str
 
+@app.post("/generate-content")
+async def generate_content(request: GenerateContentRequest):
+    user_query = request.query
+    image_url = request.image_url
+
+    # Download the image from the provided URL
+    response = requests.get(image_url)
+    if response.status_code != 200:
+        raise HTTPException(status_code=400, detail="Failed to download image from the provided URL")
+
+    image_data = response.content
+
+    # Construct the prompt with strict instructions
+    prompt = f"""
+    {user_query}
+
+    Instructions:
+    1. Respond strictly to the query without adding unnecessary explanations or reasoning.
+    2. If the query requires analysis of the image, provide only the requested information.
+    3. Do not include any additional context or details unless explicitly asked.
+    """
+
+    try:
+        # Generate content using the Gemini model
+        response = model.generate_content(
+            [
+                prompt,
+                {"mime_type": "image/jpeg", "data": image_data},  # Adjust mime_type if needed
+            ]
+        )
+        return {"response": response.text}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Run the FastAPI app with Uvicorn
 if __name__ == "__main__":
