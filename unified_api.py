@@ -58,8 +58,13 @@ async def extract_text(request: ImageURLRequest):
         The notes should be pointwise and well-structured.
         The notes should cover all the important points of the topic.
         Just think like you are making notes for yourself to revise the topic later.
+        Good notes include Graphs, mathematical equation, flow charts whereever applicable.
+        
         Output format: Well-structured Markdown notes.
-
+        For Graphs & FlowChart: You will use mermaid extension of Markdown.
+        For Mathematical Equation: You will use KaTeX extension.
+        make sure to follow the Katex Ruleset if inline, display, align, etc
+                
         The topic is delimited by triple backticks.
         ```{topic}```
         """
