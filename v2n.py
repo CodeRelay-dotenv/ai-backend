@@ -6,7 +6,6 @@ import openai
 import yt_dlp
 from dotenv import load_dotenv
 import os
-import tempfile  # For temporary file handling
 
 # Load environment variables from .env file
 load_dotenv()
@@ -18,10 +17,10 @@ app = FastAPI()
 class YouTubeURLRequest(BaseModel):
     youtube_url: str
 
-def download_youtube_audio(url, temp_file_path):
+def download_youtube_audio(url, audio_path):
     ydl_opts = {
         'format': 'bestaudio/best',  # Download the best available audio quality
-        'outtmpl': temp_file_path,  # Save the file to the temporary path
+        'outtmpl': audio_path.replace('.wav', ''),  # Remove .wav extension from outtmpl
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',  # Extract audio using FFmpeg
             'preferredcodec': 'wav',  # Convert to WAV format
@@ -33,7 +32,7 @@ def download_youtube_audio(url, temp_file_path):
         ydl.download([url])
 
 def transcribe_audio_chunk(audio_chunk, chunk_number):
-    chunk_path = f"chunk{chunk_number}.wav"
+    chunk_path = f"chunk{chunk_number}.wav"  # Ensure the file has a .wav extension
     audio_chunk.export(chunk_path, format="wav")
     with open(chunk_path, 'rb') as audio_file:
         response = openai.audio.transcriptions.create(
@@ -69,19 +68,16 @@ def generate_notes(text, temperature=0.5):
 async def generate_notes_from_youtube(request: YouTubeURLRequest):
     try:
         youtube_url = request.youtube_url
+        audio_path = "output_audio.wav"
 
-        # Create a temporary file for the audio
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
-            temp_file_path = temp_file.name
-
-        # Download the YouTube audio to the temporary file
+        # Download the YouTube audio
         print("Downloading audio...")
-        download_youtube_audio(youtube_url, temp_file_path)
+        download_youtube_audio(youtube_url, audio_path)
         print("Audio downloaded.")
 
         # Transcribe the audio
         print("Transcribing audio...")
-        transcript = split_and_transcribe_audio(temp_file_path)
+        transcript = split_and_transcribe_audio(audio_path)
         print("Transcription complete.")
 
         # Generate notes from the transcription
@@ -89,15 +85,15 @@ async def generate_notes_from_youtube(request: YouTubeURLRequest):
         notes = generate_notes(transcript)
         print("Notes generated.")
 
-        # Clean up the temporary file
-        os.remove(temp_file_path)
+        # Clean up temporary files
+        os.remove(audio_path)
 
         return {"notes": notes}
 
     except Exception as e:
         # Clean up the temporary file in case of an error
-        if 'temp_file_path' in locals() and os.path.exists(temp_file_path):
-            os.remove(temp_file_path)
+        if 'audio_path' in locals() and os.path.exists(audio_path):
+            os.remove(audio_path)
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
