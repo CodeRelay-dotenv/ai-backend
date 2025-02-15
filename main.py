@@ -2,9 +2,10 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import google.generativeai as genai
 import requests
-from pyngrok import ngrok
 import uvicorn
 from pydantic import BaseModel
+import requests
+
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -23,17 +24,22 @@ GEMINI_API_KEY = "AIzaSyAEgWiiA1hyDG-mx6Eqk5u0L-bScRYdloo"  # Replace with your 
 genai.configure(api_key=GEMINI_API_KEY)
 
 # Initialize the Gemini model
-model = genai.GenerativeModel("gemini-2.0-flash-lite-preview-02-05")
+model = genai.GenerativeModel("gemini-2.0-flash")
 
 # Pydantic model for request body
 class ImageURLRequest(BaseModel):
     image_url: str
+    
+
 
 @app.post("/extract-text")
 async def extract_text(request: ImageURLRequest):
     try:
         # Get the image URL from the request
+        print("inside function")
         image_url = request.image_url
+        print(image_url)
+        print(type(image_url))
 
         # Download the image from the S3 bucket URL
         response = requests.get(image_url)
@@ -45,7 +51,7 @@ async def extract_text(request: ImageURLRequest):
         # Generate content using the Gemini model
         response1 = model.generate_content(
             [
-                "just extract the text from the image.",
+                "Just extract the text from the image.",
                 {"mime_type": "image/jpeg", "data": image_data},  # Adjust mime_type if needed
             ]
         )
@@ -60,10 +66,12 @@ async def extract_text(request: ImageURLRequest):
         Just think like you are making notes for yourself to revise the topic later.
         Good notes include Graphs, mathematical equation, flow charts whereever applicable.
         
-        Output format: Well-structured Markdown notes.
+        
+        Output format: Well-structured Markdown notes. Covered in ```markdown``` tag.
         For Graphs & FlowChart: You will use mermaid extension of Markdown.
         For Mathematical Equation: You will use KaTeX extension.
         make sure to follow the Katex Ruleset if inline, display, align, etc
+        Do not give any introduction or conclusion.
                 
         The topic is delimited by triple backticks.
         ```{topic}```
@@ -71,6 +79,7 @@ async def extract_text(request: ImageURLRequest):
 
         response2 = model.generate_content([prompt])
 
+        print(response.text)
         # Return the generated notes
         return {"notes": response2.text}
 
@@ -87,6 +96,8 @@ class GenerateContentRequest(BaseModel):
 async def generate_content(request: GenerateContentRequest):
     user_query = request.query
     image_url = request.image_url
+    print(image_url)
+    print(type(image_url))
 
     # Download the image from the provided URL
     response = requests.get(image_url)
@@ -100,11 +111,15 @@ async def generate_content(request: GenerateContentRequest):
     {user_query}
 
     Instructions:
-    1. Respond strictly to the query without adding unnecessary explanations or reasoning.
+    1. Respond strictly to the query.
     2. If the query requires analysis of the image, provide only the requested information.
-    3. Do not include any additional context or details unless explicitly asked.
-    """
-
+    3. Output Format : Markdown response. Covered in ```markdown``` tag.
+    4. For Graphs & FlowChart: Use mermaid extension of Markdown.
+    5. For Mathematical Equation: Use KaTeX extension.
+    6. Make sure to follow the Katex Ruleset if inline, display, align, etc.
+    7. Good answers include Graphs, mathematical equations, flow charts where applicable.
+    
+    VERY IMOORTANT: Make sure all ``` are closed properly and the response is well formatted and structured. """
     try:
         # Generate content using the Gemini model
         response = model.generate_content(
@@ -113,15 +128,13 @@ async def generate_content(request: GenerateContentRequest):
                 {"mime_type": "image/jpeg", "data": image_data},  # Adjust mime_type if needed
             ]
         )
-        return {"response": response.text}
+        print(response.text)
+        return {"notes": response.text}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 # Run the FastAPI app with Uvicorn
 if __name__ == "__main__":
     # Start ngrok tunnel
-    ngrok_tunnel = ngrok.connect(8000)
-    print("Ngrok Tunnel URL:", ngrok_tunnel.public_url)
-
     # Run the FastAPI app
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0")

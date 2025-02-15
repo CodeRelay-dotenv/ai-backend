@@ -1,5 +1,5 @@
 import os
-from moviepy.editor import VideoFileClip
+from moviepy.video.io.VideoFileClip import VideoFileClip
 from dotenv import load_dotenv
 from pydub import AudioSegment
 from pydub.utils import make_chunks
