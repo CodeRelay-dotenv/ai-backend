@@ -1,5 +1,6 @@
 fastapi
 uvicorn
-google-generativeai
-requests
-pydantic
+pydub
+openai
+python-dotenv
+yt-dlp
