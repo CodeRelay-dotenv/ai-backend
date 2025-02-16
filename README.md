@@ -68,3 +68,10 @@ docker-compose up --build  # Requires GCP credentials in ./gcp-credentials
 | **Administrative ChatBot**| - Annual SaaS contracts<br>- Customization fees | Colleges, universities  | Deploy across multi-campus institutions |  
 | **Video-to-Notes**        | - Freemium model (basic vs. premium)<br>- Institutional bulk plans | Students facing language barrier or disabilities | Partner with video platforms (Zoom, Teams) |  
 | **Peer-to-Peer Tutoring** | - Certification fees for reputation tiers<br>- Academic research recruitment partnerships | Students, Adademic researchers      | Expand to global university networks  |  
+
+---
+
+### College Impact • Hackathon-Built • Built for Scale
+**🔗 Frontend Repository: [web2](https://github.com/CodeRelay-dotenv/web2)**
+
+_“Empowering campuses with AI that sees, hears, and understands.”_
