@@ -66,8 +66,8 @@ docker-compose up --build  # Requires GCP credentials in ./gcp-credentials
 |---------------------------|----------------------------------------|--------------------------|---------------------------------------|  
 | **Canvas-Integrated AI**  | - API licensing to Universities and Edtech Firms<br>- API subscriptions for  Students | STEM departments, educators | Integrate with LMS platforms |  
 | **Administrative ChatBot**| - Annual SaaS contracts<br>- Customization fees | Colleges, universities  | Deploy across multi-campus institutions |  
-| **Video-to-Notes**        | - Freemium model (basic vs. premium)<br>- Institutional bulk plans | Students facing language barrier or disabilities | Partner with video platforms (Zoom, Teams) |  
-| **Peer-to-Peer Tutoring** | - Certification fees for reputation tiers<br>- Academic research recruitment partnerships | Students, Adademic researchers      | Expand to global university networks  |  
+| **Video-to-Notes**        | - Freemium model (basic vs. premium)<br>- Institutional bulk plans | Students facing language barrier or disabilities | Partner with video platforms extensions (Zoom, Teams) |  
+| **Peer-to-Peer Tutoring** | - Certification fees for reputation tiers<br>- Academic research recruitment partnerships<br>- Foster Campus Engagement | Students, Adademic researchers      | Expand to global university networks  |  
 
 ---
 
